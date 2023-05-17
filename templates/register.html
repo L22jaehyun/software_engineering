@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>회원 가입</title>
+  </head>
+  <body>
+    <h1>회원 가입</h1>
+    <form method="POST" action="{{ url_for('register') }}">
+      <label for="username">사용자 이름:</label>
+      <input type="text" id="username" name="username" required><br>
+      <label for="password">비밀번호:</label>
+      <input type="password" id="password" name="password" required><br>
+      <input type="submit" value="가입">
+    </form>
+    <p>이미 회원이신가요? <a href="{{ url_for('login') }}">로그인</a></p>
+  </body>
+</html>

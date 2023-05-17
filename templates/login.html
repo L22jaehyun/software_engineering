@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>로그인 페이지</title>
+  </head>
+  <body>
+    <h1>로그인</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <script>
+        alert("{{ messages[-1] }}");
+      </script>
+      <p style="color:red">{{ messages[-1] }}</p>
+      {% endif %}
+    {% endwith %}
+    <form method="POST">
+      <label for="username">사용자 이름:</label>
+      <input type="text" id="username" name="username"><br>
+      <label for="password">비밀번호:</label>
+      <input type="password" id="password" name="password"><br>
+      <input type="submit" value="로그인">
+    </form>
+    {% if register %}
+      <p>아직 회원이 아니신가요? <a href="{{ url_for('register') }}">회원 가입</a></p>
+    {% endif %}
+  </body>
+</html>
