@@ -53,6 +53,9 @@ def delete_account():
     # 회원 탈퇴 로직 작성
     flash("회원 탈퇴 완료")
     return redirect(url_for('login'))
+@app.route('/test')
+def test():
+    return 'test'
 
 if __name__ == '__main__':
     app.run(debug=True)
