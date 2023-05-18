@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>계정 관리</title>
+  </head>
+  <body>
+    <h1>계정 관리</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <script>
+        alert("{{ messages[-1] }}");
+      </script>
+      {% endif %}
+    {% endwith %}
+    <h2>계좌 정보</h2>
+    <p>계좌 번호: {{ account_number }}</p>
+    <p>잔액: {{ balance }}</p>
+
+    <h2>보유 코인</h2>
+    <ul>
+      {% for coin in coins %}
+        <li>{{ coin }}</li>
+      {% endfor %}
+    </ul>
+
+    <h2>판매 중인 코인</h2>
+    <ul>
+      {% for coin in selling_coins %}
+        <li>{{ coin }}</li>
+      {% endfor %}
+    </ul>
+
+    <form method="POST" action="{{ url_for('delete_account') }}">
+      <input type="submit" value="회원 탈퇴">
+    </form>
+
+    <form method="POST" action="{{ url_for('logout') }}">
+      <input type="submit" value="로그 아웃">
+    </form>
+  </body>
+</html>
