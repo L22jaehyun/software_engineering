@@ -8,15 +8,20 @@ app.secret_key = 'secret key'
 client = MongoClient('mongodb+srv://ys990728:ys3863228@cluster0.g6hx7ds.mongodb.net/?retryWrites=true&w=majority')
 db = client['coin_exchange']  # MongoDB 데이터베이스 선택
 users_collection = db['users']  # 사용자 컬렉션 선택
+<<<<<<< HEAD
 market_collection = db['market'] # 마켓 컬렉션 선택
 board_collection = db['board'] # 게시판 컬렉션 선택
 
 initial_coin = {'market_coin':100,'coinprice':100}
 market_collection.insert_one(initial_coin)
+=======
+
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
 
 @app.route('/', methods=['GET', 'POST']) #로그인
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+<<<<<<< HEAD
         if request.method == 'POST':
             coinprice = market_collection.find_one()['coinprice']
             username = request.form['username']
@@ -35,6 +40,21 @@ def login():
                 return render_template('login.html', coinprice=coinprice,login=True)
             else :               
                 return render_template('login.html', coinprice=coinprice,register=True)
+=======
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = users_collection.find_one({'username': username, 'password': password})
+        if user:
+            session['username'] = username
+            flash("로그인에 성공했습니다!")
+            return redirect(url_for('account'))
+        else:
+            flash("존재하지 않는 회원입니다!")
+            return render_template('login.html', register=True)
+    else:
+        return render_template('login.html', register=True)
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
 
 @app.route('/register', methods=['GET', 'POST']) #회원가입
 def register():
@@ -61,7 +81,11 @@ def register():
     else:
         return render_template('register.html', register=True)
 
+<<<<<<< HEAD
 @app.route('/logout',methods=['POST']) #로그아웃
+=======
+@app.route('/logout') #로그아웃
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
 def logout():
     session.pop('username', None)
     flash("로그아웃되었습니다!")
@@ -72,6 +96,7 @@ def logout():
 def account():
     if 'username' in session:
         user = users_collection.find_one({'username': session['username']})
+<<<<<<< HEAD
         username =user.get('username')
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
@@ -80,6 +105,13 @@ def account():
         
         market_coin = int(market_collection.find_one()['market_coin'])
         return render_template('account.html',username=username,balance=balance, coin=coin,selling_coin=selling_coin,market_coin=market_coin)
+=======
+        balance = user.get('balance', 0)
+        coin = user.get('coin', 0)
+        selling_coin = user.get('selling_coin', 0)
+        return render_template('account.html', balance=balance, coin=coin,
+                               selling_coin=selling_coin)
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
     else:
         return redirect(url_for('login'))
 
@@ -99,19 +131,27 @@ def deposit():
         balance = user.get('balance', 0)
 
         # 사용자가 입력한 입금할 금액
+<<<<<<< HEAD
         deposit_amount = request.form['deposit_amount']
         if not deposit_amount.isdigit():
             flash("입금할 금액은 숫자로 입력해주세요.")
             return redirect(url_for('account'))
 
         deposit_amount = int(deposit_amount)
+=======
+        deposit_amount = float(request.form['deposit_amount'])
+
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
         updated_balance = balance + deposit_amount
 
         users_collection.update_one({'username': session['username']}, {'$set': {'balance': updated_balance}})
         flash("입금이 완료되었습니다!")
     return redirect(url_for('account'))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
 @app.route('/withdraw', methods=['POST'])  # 출금
 def withdraw():
     if 'username' in session:
@@ -119,11 +159,15 @@ def withdraw():
         balance = user.get('balance', 0)
 
         # 사용자가 입력한 출금할 금액
+<<<<<<< HEAD
         withdraw_amount = request.form['withdraw_amount']
         if not withdraw_amount.isdigit():
             flash("출금할 금액은 숫자로 입력해주세요.")
             return redirect(url_for('account'))
         withdraw_amount = int(request.form['withdraw_amount'])
+=======
+        withdraw_amount = float(request.form['withdraw_amount'])
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
 
         # 출금 가능한 잔액보다 큰 금액을 출금하려고 하면 출금되지 않음
         if withdraw_amount > balance:
@@ -134,6 +178,7 @@ def withdraw():
             flash("출금이 완료되었습니다!")
     return redirect(url_for('account'))
 
+<<<<<<< HEAD
 @app.route('/buy_market',methods=['POST']) #마켓에서 코인 구매
 def buy_market():
     if 'username' in session:
@@ -223,5 +268,7 @@ def user_sell():
                 flash("판매 개수와 금액을 숫자로 입력해주세요.")
     else:
         return redirect(url_for('login'))
+=======
+>>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
 if __name__ == '__main__':
     app.run(debug=True)
