@@ -14,27 +14,24 @@
       {% endif %}
     {% endwith %}
     <h2>계좌 정보</h2>
-    <p>계좌 번호: {{ account_number }}</p>
-    <p>잔액: {{ balance }}</p>
-
+    <p>잔액(단위:Won): {{ balance }}</p>
+    <form method="POST" action="{{ url_for('deposit') }}">
+      <label for="deposit_amount">입금할 금액(단위:Won):</label>
+      <input type="number" name="deposit_amount" id="deposit_amount" required min="1" pattern="\d+">
+      <input type="submit" value="입금">
+    </form>
+    <form method="POST" action="{{ url_for('withdraw') }}">
+      <label for="withdraw_amount">출금할 금액(단위:Won):</label>
+      <input type="number" name="withdraw_amount" id="withdraw_amount" required min="1" pattern="\d+">
+      <input type="submit" value="출금">
+    </form>
     <h2>보유 코인</h2>
-    <ul>
-      {% for coin in coins %}
-        <li>{{ coin }}</li>
-      {% endfor %}
-    </ul>
-
+    <p>{{ coin }}</p>
     <h2>판매 중인 코인</h2>
-    <ul>
-      {% for coin in selling_coins %}
-        <li>{{ coin }}</li>
-      {% endfor %}
-    </ul>
-
+    <p>{{ selling_coin }}</p>
     <form method="POST" action="{{ url_for('delete_account') }}">
       <input type="submit" value="회원 탈퇴">
     </form>
-
     <form method="POST" action="{{ url_for('logout') }}">
       <input type="submit" value="로그 아웃">
     </form>
