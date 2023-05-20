@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매매 게시판</title>
+    <a href="login">메인 화면</a> <a href="account">계정 관리</a> 
+    <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃"></form>
+</head>
+<body>
+    <p>보유 금액: {{ balance }} 원</p>
+    <p>보유 하고 있는 코인 개수: {{ coin }} 개</p>
+    <p>판매 하고 있는 코인 개수: {{ selling_coin }}개 / 개당 {{sell_price}} 원</p>
+    <form method="POST" action="{{ url_for('user_sell') }}">
+        <input type="text"  name="sell_amount" placeholder="판매 희망 개수">
+        <input type="text"  name="sell_price" placeholder="개당 판매 희망 금액">
+        <input type="submit" value="판매">
+    </form>
+
+    <p>판매 게시판</p>
+    <ol>
+        <li></li>
+        <li></li>
+    </ol>
+</body>
+</html>

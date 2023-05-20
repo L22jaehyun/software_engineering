@@ -3,9 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <title>계정 관리</title>
+    <a href="login">메인 화면</a> <a href="board">매매 게시판</a>
   </head>
   <body>
     <h1>계정 관리</h1>
+    
+    <form method="POST" action="{{ url_for('logout') }}">
+      <input type="submit" value="로그 아웃">
+    </form>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
       <script>
@@ -13,30 +18,33 @@
       </script>
       {% endif %}
     {% endwith %}
-    <h2>계좌 정보</h2>
-    <p>계좌 번호: {{ account_number }}</p>
-    <p>잔액: {{ balance }}</p>
+    <h2>{{ username }} 님의 계좌 정보</h2>
+    <p>보유 금액: {{ balance }} 원</p>
+    <form method="POST" action="{{ url_for('deposit') }}">
+      <input type="text"  name="deposit_amount" placeholder="입금 희망 금액">
+      <input type="submit" value="입금">
+    </form>
+    <form method="POST" action="{{ url_for('withdraw') }}">
+      <input type="text"  name="withdraw_amount" placeholder="출금 희망 금액">
+      <input type="submit" value="출금">
+    </form>
 
-    <h2>보유 코인</h2>
-    <ul>
-      {% for coin in coins %}
-        <li>{{ coin }}</li>
-      {% endfor %}
-    </ul>
 
-    <h2>판매 중인 코인</h2>
-    <ul>
-      {% for coin in selling_coins %}
-        <li>{{ coin }}</li>
-      {% endfor %}
-    </ul>
+    <h2>{{username}} 님이 보유 중인 코인</h2>
+    <p>{{ coin }} 개</p>
 
+    <h2>{{username}} 님이 판매 중인 코인</h2>
+    <p>{{ selling_coin }} 개</p>
+
+    <h2>마켓이 보유 중인 코인</h2>
+    <p>{{ market_coin }} 개</p>
+    <form method="POST" action="{{ url_for('buy_market') }}">
+      <input type="text"  name="buy_market" placeholder="구매 희망 개수">
+      <input type="submit" value="구매">
+    </form>
     <form method="POST" action="{{ url_for('delete_account') }}">
       <input type="submit" value="회원 탈퇴">
     </form>
-
-    <form method="POST" action="{{ url_for('logout') }}">
-      <input type="submit" value="로그 아웃">
-    </form>
+    
   </body>
 </html>
