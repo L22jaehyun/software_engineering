@@ -2,15 +2,10 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>메인 페이지</title>
+    <title>로그인 페이지</title>
   </head>
   <body>
     <h1>로그인</h1>
-    {% if login %}
-    <form method="POST" action="{{ url_for('logout') }}">
-      <input type="submit" value="로그 아웃">
-    </form>
-    {% endif %}
     {% with messages = get_flashed_messages() %}
       {% if messages %}
       <script>
@@ -18,10 +13,6 @@
       </script>
       {% endif %}
     {% endwith %}
-    {% if login %} 
-      <a href="account">계정 관리</a> <a href="board">매매 게시판</a>
-    {% endif %}
-    {% if not login %} 
     <form method="POST">
       <label for="username">사용자 이름:</label>
       <input type="text" id="username" name="username"><br>
@@ -29,9 +20,6 @@
       <input type="password" id="password" name="password"><br>
       <input type="submit" value="로그인">
     </form>
-    {% endif %}
-    <p>현재 코인 시세: {{ coinprice }} 원</p>
-    <p>코인 가격 그래프</p>
     {% if register %}
       <p>아직 회원이 아니신가요? <a href="{{ url_for('register') }}">회원 가입</a></p>
     {% endif %}
