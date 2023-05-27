@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta charset="UTF-8">
-<<<<<<< HEAD
     <title>메인 페이지</title>
   </head>
   <body>
@@ -12,12 +11,6 @@
       <input type="submit" value="로그 아웃">
     </form>
     {% endif %}
-=======
-    <title>로그인 페이지</title>
-  </head>
-  <body>
-    <h1>로그인</h1>
->>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
     {% with messages = get_flashed_messages() %}
       {% if messages %}
       <script>
@@ -25,13 +18,10 @@
       </script>
       {% endif %}
     {% endwith %}
-<<<<<<< HEAD
     {% if login %} 
       <a href="account">계정 관리</a> <a href="board">매매 게시판</a>
     {% endif %}
     {% if not login %} 
-=======
->>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
     <form method="POST">
       <label for="username">사용자 이름:</label>
       <input type="text" id="username" name="username"><br>
@@ -39,18 +29,11 @@
       <input type="password" id="password" name="password"><br>
       <input type="submit" value="로그인">
     </form>
-<<<<<<< HEAD
     {% endif %}
     <p>현재 코인 시세: {{ coinprice }} 원</p>
     <p>코인 가격 그래프</p>
-=======
->>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
     {% if register %}
       <p>아직 회원이 아니신가요? <a href="{{ url_for('register') }}">회원 가입</a></p>
     {% endif %}
   </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> efe450c (출금 입금 추가 및 몽고DB 연결)
