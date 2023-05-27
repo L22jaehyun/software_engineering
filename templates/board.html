@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<html lang="kr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매매 게시판</title>
 </head>
 <body>
@@ -15,23 +12,30 @@
     <p>판매하고 있는 코인 개수: {{ selling_coin }} 개</p>
 
     <form method="POST" action="{{ url_for('user_sell') }}">
-        <input type="number" name="sell_amount" placeholder="판매 희망 개수" min="1" max="{{ coin }}">
-        <input type="number" name="sell_price" placeholder="개당 판매 희망 금액" min="1">
+        <input type="number" name="sell_amount" placeholder="판매 희망 개수" min="1" max="{{ coin }}" required>
+        <input type="number" name="sell_price" placeholder="개당 판매 희망 금액" min="1" required>
         <input type="submit" value="판매">
     </form>
-
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <script>
+      alert("{{ messages[-1] }}");
+    </script>
+    {% endif %}
+    {% endwith %}
     <h2>판매 게시판</h2>
     
     <div>
+        
         {% for item in sell_list %}
         <p>게시자: {{ item.username }}</p>
         <p>판매 개수: {{ item.sell_amount }}</p>
         <p>판매 가격: {{ item.sell_price }}</p>
         <form method="POST" action="{{ url_for('user_purchase') }}">
-            <input type="hidden" name="seller" value="{{ item.username }}">
             <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
             <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
-            <input type="submit" value="구매">
+            <input type="hidden" name="seller_username" value="{{ item.username }}">
+            <button type="submit" class="btn btn-primary">구매</button>
         </form>
         <hr>
         {% endfor %}

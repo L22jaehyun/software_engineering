@@ -8,35 +8,36 @@ app.secret_key = 'secret key'
 client = MongoClient('mongodb+srv://ys990728:ys3863228@cluster0.g6hx7ds.mongodb.net/?retryWrites=true&w=majority')
 db = client['coin_exchange']  # MongoDB 데이터베이스 선택
 users_collection = db['users']  # 사용자 컬렉션 선택
-market_collection = db['market'] # 마켓 컬렉션 선택
-board_collection = db['board'] # 게시판 컬렉션 선택
+market_collection = db['market']  # 마켓 컬렉션 선택
+board_collection = db['board']  # 게시판 컬렉션 선택
 
 # 데이터베이스에 마켓 정보가 없는 경우에만 초기 마켓 정보 추가
 if market_collection.count_documents({}) == 0:
     initial_coin = {'market_coin': 100, 'coinprice': 100}
     market_collection.insert_one(initial_coin)
 
-@app.route('/', methods=['GET', 'POST']) #로그인
+
+@app.route('/', methods=['GET', 'POST'])  # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-        if request.method == 'POST':
-            coinprice = market_collection.find_one()['coinprice']
-            username = request.form['username']
-            password = request.form['password']
-            user = users_collection.find_one({'username': username, 'password': password})
-            if user:
-                session['username'] = username
-                flash("로그인에 성공했습니다!")
-                return render_template('login.html', coinprice=coinprice,login=True)
-            else:
-                flash("존재하지 않는 회원입니다!")
-                return render_template('login.html', coinprice=coinprice,register=True)
+    if request.method == 'POST':
+        coinprice = market_collection.find_one()['coinprice']
+        username = request.form['username']
+        password = request.form['password']
+        user = users_collection.find_one({'username': username, 'password': password})
+        if user:
+            session['username'] = username
+            flash("로그인에 성공했습니다!")
+            return render_template('login.html', coinprice=coinprice, login=True)
         else:
-            coinprice = market_collection.find_one()['coinprice']
-            if 'username' in session:
-                return render_template('login.html', coinprice=coinprice,login=True)
-            else :               
-                return render_template('login.html', coinprice=coinprice,register=True)
+            flash("존재하지 않는 회원입니다!")
+            return render_template('login.html', coinprice=coinprice, register=True)
+    else:
+        coinprice = market_collection.find_one()['coinprice']
+        if 'username' in session:
+            return render_template('login.html', coinprice=coinprice, login=True)
+        else:
+            return render_template('login.html', coinprice=coinprice, register=True)
 
 @app.route('/register', methods=['GET', 'POST']) #회원가입
 def register():
@@ -167,6 +168,7 @@ def buy_market():
                 return redirect(url_for('account'))
         
     return redirect(url_for('account'))
+
 @app.route('/board', methods=['GET', 'POST'])
 def board():
     if 'username' in session:
@@ -180,24 +182,10 @@ def board():
 
         sell_list = board_collection.find()  # 판매 게시글 모두 가져오기
 
-        return render_template('board.html', username=username, balance=balance, coin=coin, selling_coin=selling_coin, sell_list=sell_list)
+        return render_template('board.html', username=username, balance=balance, coin=coin, selling_coin=selling_coin,
+                               sell_list=sell_list)
     else:
         return redirect(url_for('login'))
-
-@app.route('/user_buy',methods=['GET','POST']) #
-def user_buy():
-    if 'username' in session:
-        user = users_collection.find_one({'username': session['username']})
-        username =user.get('username')
-        balance = int(user.get('balance', 0))
-        coin = int(user.get('coin', 0))
-        selling_coin = int(user.get('selling_coin', 0))
-          
-        market_coin = int(market_collection.find_one()['market_coin'])
-        return render_template('board.html')
-    else:
-        return redirect(url_for('login'))
-
 @app.route('/user_sell', methods=['GET', 'POST'])
 def user_sell():
     if 'username' in session:
@@ -212,7 +200,9 @@ def user_sell():
                 sell_amount = int(sell_amount)
                 sell_price = int(sell_price)
 
-                if sell_amount > coin:
+                if sell_amount < 0 or sell_price < 0:
+                    flash("판매 개수와 금액은 1 이상의 자연수만 입력 가능합니다!")
+                elif sell_amount > coin:
                     flash("보유하고 있는 코인의 개수보다 많이 판매할 수 없습니다!")
                 else:
                     board_collection.insert_one({
@@ -234,8 +224,48 @@ def user_sell():
         return redirect(url_for('login'))
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/user_purchase', methods=['POST'])  # 유저로부터 코인 구매
+def user_purchase():
+    if 'username' in session:
+        user = users_collection.find_one({'username': session['username']})
+        balance = user.get('balance', 0)
+        coin = user.get('coin', 0)
+        purchase_amount = request.form['purchase_amount']
+        purchase_price = request.form['purchase_price']
+        seller_username = request.form['seller_username']
+
+        if seller_username == session['username']:
+            flash("자신이 판매한 코인은 구매할 수 없습니다!")
+        else:
+            purchase_amount = int(purchase_amount)
+            purchase_price = int(purchase_price)
+
+            if purchase_amount * purchase_price > balance:
+                flash("보유한 금액이 부족하여 구매할 수 없습니다!")
+                return redirect(url_for('board'))
+
+            seller = users_collection.find_one({'username': seller_username})
+            seller_coin = seller.get('coin', 0)
+            seller_balance = seller.get('balance', 0)
+
+            updated_balance = balance - purchase_amount * purchase_price
+            updated_coin = coin + purchase_amount
+            updated_seller_balance = seller_balance + purchase_amount * purchase_price
+            updated_seller_coin = seller_coin - purchase_amount
+
+            users_collection.update_one({'username': session['username']}, {'$set': {'balance': updated_balance}})
+            users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
+            users_collection.update_one({'username': seller_username}, {'$set': {'balance': updated_seller_balance}})
+            users_collection.update_one({'username': seller_username}, {'$set': {'coin': updated_seller_coin}})
+
+            board_collection.delete_one({'username': seller_username, 'sell_amount': purchase_amount, 'sell_price': purchase_price})
+
+            flash("코인 구매가 완료되었습니다.")
+
+        return redirect(url_for('board'))
+    else:
+        return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
