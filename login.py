@@ -31,7 +31,10 @@ def login():
                 return render_template('login.html', coinprice=coinprice,register=True)
         else:
             coinprice = market_collection.find_one()['coinprice']
-            return render_template('login.html', coinprice=coinprice,register=True)
+            if 'username' in session:
+                return render_template('login.html', coinprice=coinprice,login=True)
+            else :               
+                return render_template('login.html', coinprice=coinprice,register=True)
 
 @app.route('/register', methods=['GET', 'POST']) #회원가입
 def register():
@@ -162,7 +165,7 @@ def buy_market():
                 return redirect(url_for('account'))
         
     return redirect(url_for('account'))
-@app.route('/board',methods=['GET','POST'])
+@app.route('/board',methods=['GET','POST']) # 매매 게시판 들어갈 때
 def board():
     if 'username' in session:
         user = users_collection.find_one({'username': session['username']})
@@ -170,13 +173,12 @@ def board():
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
         selling_coin = int(user.get('selling_coin', 0))
-        
-        
+               
         market_coin = int(market_collection.find_one()['market_coin'])
         return render_template('board.html',username=username,balance=balance,coin=coin,selling_coin=selling_coin)
     else:
         return redirect(url_for('login'))
-@app.route('/user_buy',methods=['GET','POST'])
+@app.route('/user_buy',methods=['GET','POST']) #
 def user_buy():
     if 'username' in session:
         user = users_collection.find_one({'username': session['username']})
@@ -184,8 +186,7 @@ def user_buy():
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
         selling_coin = int(user.get('selling_coin', 0))
-        
-        
+          
         market_coin = int(market_collection.find_one()['market_coin'])
         return render_template('board.html')
     else:
@@ -201,26 +202,25 @@ def user_sell():
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
         selling_coin = int(user.get('selling_coin', 0))
-        if not sell_amount.isdigit():
-            flash("희망 판매 개수를 숫자로 입력해주세요")
-        if not sell_price.isdigit():
-            flash("개당 희망 판매 금액을 숫자로 입력해주세요")
-        sell_amount = int(sell_amount)
-        sell_price = int(sell_price)
-        if sell_amount>coin :# 보유하고 있는 코인보다 많이 팔려고 하면?
-            flash("보유하고 있는 코인의 개수보다 많이 판매할 수 없습니다!")
+        if sell_amount.isdigit() & sell_price.isdigit():
+            sell_amount = int(sell_amount)
+            sell_price = int(sell_price)
+            if sell_amount>coin :# 보유하고 있는 코인보다 많이 팔려고 하면?
+                flash("보유하고 있는 코인의 개수보다 많이 판매할 수 없습니다!")
+            else:
+                board_collection.insert_one
+                ({
+                    'username': username,
+                    'sell_amount': sell_amount,
+                    'balance': sell_price
+                })
+            updated_coin = coin - sell_amount
+            updated_selling_coin = selling_coin + sell_amount
+            users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
+            users_collection.update_one({'username': session['username']}, {'$set': {'selling_coin': updated_selling_coin}})
+            return render_template('board.html',sell_amount=sell_amount,sell_price=sell_price,username=username,balance=balance,coin=coin,selling_coin=selling_coin)
         else:
-            board_collection.insert_one
-            ({
-                'username': username,
-                'sell_amount': sell_amount,
-                'balance': sell_price
-            })
-        updated_coin = coin - sell_amount
-        updated_selling_coin = selling_coin + sell_amount
-        users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
-        users_collection.update_one({'username': session['username']}, {'$set': {'selling_coin': updated_selling_coin}})
-        return render_template('board.html',sell_amount=sell_amount,sell_price=sell_price,username=username,balance=balance,coin=coin,selling_coin=selling_coin)
+                flash("판매 개수와 금액을 숫자로 입력해주세요.")
     else:
         return redirect(url_for('login'))
 if __name__ == '__main__':

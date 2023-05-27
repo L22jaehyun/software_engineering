@@ -11,7 +11,7 @@
 <body>
     <p>보유 금액: {{ balance }} 원</p>
     <p>보유 하고 있는 코인 개수: {{ coin }} 개</p>
-    <p>판매 하고 있는 코인 개수: {{ selling_coin }}개 / 개당 {{sell_price}} 원</p>
+    <p>판매 하고 있는 코인 개수: {{ selling_coin }}개</p>
     <form method="POST" action="{{ url_for('user_sell') }}">
         <input type="text"  name="sell_amount" placeholder="판매 희망 개수">
         <input type="text"  name="sell_price" placeholder="개당 판매 희망 금액">
