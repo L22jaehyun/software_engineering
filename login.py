@@ -176,9 +176,10 @@ def board():
         username = user.get('username')
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
-        selling_coin = int(user.get('selling_coin', 0))
 
-        market_coin = int(market_collection.find_one()['market_coin'])
+        # Calculate the total number of coins being sold by the user
+        sell_list = board_collection.find({'username': username})
+        selling_coin = sum(item['sell_amount'] for item in sell_list)
 
         sell_list = board_collection.find()  # 판매 게시글 모두 가져오기
 
@@ -186,6 +187,10 @@ def board():
                                sell_list=sell_list)
     else:
         return redirect(url_for('login'))
+
+
+
+
 @app.route('/user_sell', methods=['GET', 'POST'])
 def user_sell():
     if 'username' in session:
@@ -223,6 +228,32 @@ def user_sell():
     else:
         return redirect(url_for('login'))
 
+@app.route('/user_sell_cancel', methods=['POST'])
+def user_sell_cancel():
+    if 'username' in session:
+        sell_amount = int(request.form['sell_amount'])
+        sell_price = int(request.form['sell_price'])
+        seller_username = request.form['seller_username']
+
+        # Delete the sell post from the board collection
+        board_collection.delete_one({
+            'username': seller_username,
+            'sell_amount': sell_amount,
+            'sell_price': sell_price
+        })
+
+        # Update the user's coin balance by adding the canceled sell amount
+        users_collection.update_one(
+            {'username': seller_username},
+            {'$inc': {'coin': sell_amount}}
+        )
+
+        flash("판매 게시글이 취소되었습니다.")
+        return redirect(url_for('board'))
+    else:
+        return redirect(url_for('login'))
+
+
 
 @app.route('/user_purchase', methods=['POST'])  # 유저로부터 코인 구매
 def user_purchase():
@@ -234,33 +265,30 @@ def user_purchase():
         purchase_price = request.form['purchase_price']
         seller_username = request.form['seller_username']
 
-        if seller_username == session['username']:
-            flash("자신이 판매한 코인은 구매할 수 없습니다!")
-        else:
-            purchase_amount = int(purchase_amount)
-            purchase_price = int(purchase_price)
+        purchase_amount = int(purchase_amount)
+        purchase_price = int(purchase_price)
 
-            if purchase_amount * purchase_price > balance:
-                flash("보유한 금액이 부족하여 구매할 수 없습니다!")
-                return redirect(url_for('board'))
+        if purchase_amount * purchase_price > balance:
+            flash("보유한 금액이 부족하여 구매할 수 없습니다!")
+            return redirect(url_for('board'))
 
-            seller = users_collection.find_one({'username': seller_username})
-            seller_coin = seller.get('coin', 0)
-            seller_balance = seller.get('balance', 0)
+        seller = users_collection.find_one({'username': seller_username})
+        seller_coin = seller.get('coin', 0)
+        seller_balance = seller.get('balance', 0)
 
-            updated_balance = balance - purchase_amount * purchase_price
-            updated_coin = coin + purchase_amount
-            updated_seller_balance = seller_balance + purchase_amount * purchase_price
-            updated_seller_coin = seller_coin - purchase_amount
+        updated_balance = balance - purchase_amount * purchase_price
+        updated_coin = coin + purchase_amount
+        updated_seller_balance = seller_balance + purchase_amount * purchase_price
+        updated_seller_coin = seller_coin - purchase_amount
 
-            users_collection.update_one({'username': session['username']}, {'$set': {'balance': updated_balance}})
-            users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
-            users_collection.update_one({'username': seller_username}, {'$set': {'balance': updated_seller_balance}})
-            users_collection.update_one({'username': seller_username}, {'$set': {'coin': updated_seller_coin}})
+        users_collection.update_one({'username': session['username']}, {'$set': {'balance': updated_balance}})
+        users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
+        users_collection.update_one({'username': seller_username}, {'$set': {'balance': updated_seller_balance}})
+        users_collection.update_one({'username': seller_username}, {'$set': {'coin': updated_seller_coin}})
 
-            board_collection.delete_one({'username': seller_username, 'sell_amount': purchase_amount, 'sell_price': purchase_price})
+        board_collection.delete_one({'username': seller_username, 'sell_amount': purchase_amount, 'sell_price': purchase_price})
 
-            flash("코인 구매가 완료되었습니다.")
+        flash("코인 구매가 완료되었습니다.")
 
         return redirect(url_for('board'))
     else:

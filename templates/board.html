@@ -9,7 +9,7 @@
 
     <p>보유 금액: {{ balance }} 원</p>
     <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
-    <p>판매하고 있는 코인 개수: {{ selling_coin }} 개</p>
+    <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
 
     <form method="POST" action="{{ url_for('user_sell') }}">
         <input type="number" name="sell_amount" placeholder="판매 희망 개수" min="1" max="{{ coin }}" required>
@@ -26,17 +26,28 @@
     <h2>판매 게시판</h2>
     
     <div>
-        
         {% for item in sell_list %}
-        <p>게시자: {{ item.username }}</p>
-        <p>판매 개수: {{ item.sell_amount }}</p>
-        <p>판매 가격: {{ item.sell_price }}</p>
+        <p>게시자: {{ item.username }}</p> 
+        <p>코인 판매 개수: {{ item.sell_amount }}개</p>
+        <p>개당 판매 가격: {{ item.sell_price }}원</p>
+        <p>총 가격: {{ item.sell_price * item.sell_amount }}원</p>
+
+        {% if username != item.username %}
         <form method="POST" action="{{ url_for('user_purchase') }}">
             <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
             <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
             <input type="hidden" name="seller_username" value="{{ item.username }}">
             <button type="submit" class="btn btn-primary">구매</button>
         </form>
+
+        {% else %}
+        <form method="POST" action="{{ url_for('user_sell_cancel') }}">
+            <input type="hidden" name="sell_amount" value="{{ item.sell_amount }}">
+            <input type="hidden" name="sell_price" value="{{ item.sell_price }}">
+            <input type="hidden" name="seller_username" value="{{ item.username }}">
+            <button type="submit" class="btn btn-primary">판매 취소</button>
+        </form>
+        {% endif %}
         <hr>
         {% endfor %}
     </div>
