@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
+from datetime import datetime
 from pymongo import MongoClient
+
 
 app = Flask(__name__)
 app.secret_key = 'secret key'
@@ -10,6 +12,7 @@ db = client['coin_exchange']  # MongoDB 데이터베이스 선택
 users_collection = db['users']  # 사용자 컬렉션 선택
 market_collection = db['market']  # 마켓 컬렉션 선택
 board_collection = db['board']  # 게시판 컬렉션 선택
+coin_recent_price_collection = db['coin_recent_price']  # 가격 정보 컬렉션 선택
 
 # 데이터베이스에 마켓 정보가 없는 경우에만 초기 마켓 정보 추가
 if market_collection.count_documents({}) == 0:
@@ -20,24 +23,30 @@ if market_collection.count_documents({}) == 0:
 @app.route('/', methods=['GET', 'POST'])  # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    coinprice = market_collection.find_one()['coinprice']
+    coin_prices = coin_recent_price_collection.find({}, {'_id': 0, 'timestamp': 1, 'coin_price': 1}).sort('timestamp', 1)
+    data = [['Timestamp', 'Price']]
+    for price in coin_prices:
+        data.append([price['timestamp'].isoformat(), price['coin_price']])
+
     if request.method == 'POST':
-        coinprice = market_collection.find_one()['coinprice']
         username = request.form['username']
         password = request.form['password']
         user = users_collection.find_one({'username': username, 'password': password})
+
         if user:
             session['username'] = username
             flash("로그인에 성공했습니다!")
-            return render_template('login.html', coinprice=coinprice, login=True)
+            return render_template('login.html', coinprice=coinprice, coin_prices=data, login=True)
         else:
             flash("존재하지 않는 회원입니다!")
-            return render_template('login.html', coinprice=coinprice, register=True)
+            return render_template('login.html', coinprice=coinprice, coin_prices=data, register=True)
     else:
-        coinprice = market_collection.find_one()['coinprice']
         if 'username' in session:
-            return render_template('login.html', coinprice=coinprice, login=True)
+            return render_template('login.html', coinprice=coinprice, coin_prices=data, login=True)
         else:
-            return render_template('login.html', coinprice=coinprice, register=True)
+            return render_template('login.html', coinprice=coinprice, coin_prices=data, register=True)
+
 
 @app.route('/register', methods=['GET', 'POST']) #회원가입
 def register():
@@ -137,20 +146,20 @@ def withdraw():
             flash("출금이 완료되었습니다!")
     return redirect(url_for('account'))
 
-@app.route('/buy_market',methods=['POST']) #마켓에서 코인 구매
+@app.route('/buy_market', methods=['POST']) #마켓에서 코인 구매
 def buy_market():
     if 'username' in session:
         user = users_collection.find_one({'username': session['username']})
         balance = user.get('balance', 0)
-        coin = user.get('coin',0)
+        coin = user.get('coin', 0)
         buy_market = request.form['buy_market']
         market_coin = int(market_collection.find_one()['market_coin'])
         if not buy_market.isdigit():
-                flash("구매할 개수는 숫자로 입력해주세요.")
-                return redirect(url_for('account'))
+            flash("구매할 개수는 숫자로 입력해주세요.")
+            return redirect(url_for('account'))
         buy_market = int(buy_market)
-        
-        #마켓이 보유한 것 보다 많은 코인을 구매하려고 하면 구매가 불가능함
+
+        # 마켓이 보유한 것보다 많은 코인을 구매하려고 하면 구매가 불가능함
         if buy_market > market_coin:
             flash("마켓이 보유한 것보다 많은 개수를 구매할 수 없습니다!")
         else:
@@ -159,14 +168,19 @@ def buy_market():
                 return redirect(url_for('account'))
             else:
                 updated_market_coin = market_coin - buy_market
-                updated_balance = balance - buy_market*100
+                updated_balance = balance - buy_market * 100
                 updated_coin = coin + buy_market
-                market_collection.update_one({},{'$set':{'market_coin':updated_market_coin}})
+                market_collection.update_one({}, {'$set': {'market_coin': updated_market_coin}})
                 users_collection.update_one({'username': session['username']}, {'$set': {'balance': updated_balance}})
                 users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
+
+                # 가격 정보를 coin_recent_price 컬렉션에 저장
+                timestamp = datetime.now()  # 현재 타임스탬프 가져오기
+                # 구매한 코인의 가격과 타임스탬프를 coin_recent_price 컬렉션에 저장
+                coin_recent_price_collection.insert_one({'coin_price': 100, 'timestamp': timestamp})
                 flash("코인 구매가 완료되었습니다.")
                 return redirect(url_for('account'))
-        
+
     return redirect(url_for('account'))
 
 @app.route('/board', methods=['GET', 'POST'])
@@ -253,8 +267,6 @@ def user_sell_cancel():
     else:
         return redirect(url_for('login'))
 
-
-
 @app.route('/user_purchase', methods=['POST'])  # 유저로부터 코인 구매
 def user_purchase():
     if 'username' in session:
@@ -286,7 +298,12 @@ def user_purchase():
         users_collection.update_one({'username': seller_username}, {'$set': {'balance': updated_seller_balance}})
         users_collection.update_one({'username': seller_username}, {'$set': {'coin': updated_seller_coin}})
 
+        
+
         board_collection.delete_one({'username': seller_username, 'sell_amount': purchase_amount, 'sell_price': purchase_price})
+        timestamp = datetime.now()  # 현재 타임스탬프 가져오기
+        # 구매한 코인의 가격과 타임스탬프를 coin_recent_price 컬렉션에 저장
+        coin_recent_price_collection.insert_one({'coin_price': purchase_price, 'timestamp': timestamp})
 
         flash("코인 구매가 완료되었습니다.")
 

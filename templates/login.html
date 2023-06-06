@@ -3,6 +3,28 @@
   <head>
     <meta charset="UTF-8">
     <title>메인 페이지</title>
+    <p>현재 코인 시세: {{ coinprice }} 원</p>
+    <p>코인 가격 그래프</p>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var coinData = {{ coin_prices | safe }};
+        var data = google.visualization.arrayToDataTable(coinData);
+
+        var options = {
+          title: '코인 시세',
+          curveType: 'none', // 원통형 차트로 설정
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+      }
+    </script>
   </head>
   <body>
     <h1>로그인</h1>
@@ -30,10 +52,11 @@
       <input type="submit" value="로그인">
     </form>
     {% endif %}
-    <p>현재 코인 시세: {{ coinprice }} 원</p>
-    <p>코인 가격 그래프</p>
+
+    <div id="chart_div" style="width: 100%; height: 400px;"></div>
     {% if register %}
       <p>아직 회원이 아니신가요? <a href="{{ url_for('register') }}">회원 가입</a></p>
     {% endif %}
+
   </body>
 </html>
