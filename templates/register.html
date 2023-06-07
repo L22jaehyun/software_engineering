@@ -1,6 +1,56 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+      h1 {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+      .register-form {
+        background-color: #eeeff1c8;
+        width:300px;
+        padding:20px;
+        border-radius: 5px;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 300px;
+      }
+
+      .register-form label {
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .register-form input[type="text"],
+      .register-form input[type="password"] {
+        width: 300px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+
+      .register-form input[type="submit"] {
+        margin-top: 20px;
+        width: 300px;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: rgb(240, 235, 235);
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        
+      }
+      .login {
+        font-size: 13.5px;
+        margin-top: 20px;
+        text-align:center;
+      }
+
+      .login a
+      {
+        text-decoration: none;
+      }
+    </style>
     <meta charset="UTF-8">
     <title>회원 가입</title>
   </head>
@@ -13,13 +63,15 @@
       </script>
       {% endif %}
     {% endwith %}
-    <form method="POST" action="{{ url_for('register') }}">
+    <form class="register-form" method="POST" action="{{ url_for('register') }}">
       <label for="username">사용자 이름:</label>
       <input type="text" id="username" name="username" required><br>
       <label for="password">비밀번호:</label>
       <input type="password" id="password" name="password" required><br>
       <input type="submit" value="가입">
     </form>
-    <p>이미 회원이신가요? <a href="{{ url_for('login') }}">로그인</a></p>
+    <div class="login">
+    <a href="{{ url_for('login') }}">이미 회원이신가요?</a>
+    </div>
   </body>
 </html>
