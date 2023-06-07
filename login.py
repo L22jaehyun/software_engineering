@@ -250,19 +250,18 @@ def user_sell_cancel():
         sell_amount = int(request.form['sell_amount'])
         sell_price = int(request.form['sell_price'])
         seller_username = request.form['seller_username']
-
+        
+        
         # Delete the sell post from the board collection
         board_collection.delete_one({
             'username': seller_username,
             'sell_amount': sell_amount,
             'sell_price': sell_price
         })
-
+        
         # Update the user's coin balance by adding the canceled sell amount
-        users_collection.update_one(
-            {'username': seller_username},
-            {'$inc': {'coin': sell_amount}}
-        )
+        users_collection.update_one({'username': seller_username},{'$inc': {'coin': sell_amount}})
+        users_collection.update_one({'username': seller_username},{'$inc': {'selling_coin': -sell_amount}})
 
         flash("판매 게시글이 취소되었습니다.")
         return redirect(url_for('board'))
