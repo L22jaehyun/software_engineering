@@ -1,21 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>매매 게시판</title>
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        .post {
+            width: 23%; /* 4개의 게시물이 한 줄에 나타나도록 너비 조정 */
+            margin: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        @media (max-width: 768px) {
+            .post {
+                width: 48%; /* 2개의 게시물이 한 줄에 나타나도록 너비 조정 (모바일 화면) */
+            }
+        }
+        @media (max-width: 480px) {
+            .post {
+                width: 100%; /* 한 개의 게시물이 한 줄에 나타나도록 너비 조정 (작은 모바일 화면) */
+            }
+        }
+
+    </style>
 </head>
 <body>
-    <a href="{{ url_for('login') }}">메인 화면</a> <a href="{{ url_for('account') }}">계정 관리</a> 
+    <a href="{{ url_for('login') }}">메인 화면</a> <a href="{{ url_for('account') }}">계정 관리</a>
     <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃"></form>
 
-    <p>보유 금액: {{ balance }} 원</p>
-    <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
-    <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
+    <div class="container">
+        <div id="sales_form">
+            <h3>계정 정보</h3>
+            <p>보유 금액: {{ balance }} 원</p>
+            <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
+            <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
 
-    <form method="POST" action="{{ url_for('user_sell') }}">
-        <input type="number" name="sell_amount" placeholder="판매 희망 개수" min="1" max="{{ coin }}" required>
-        <input type="number" name="sell_price" placeholder="개당 판매 희망 금액" min="1" required>
-        <input type="submit" value="판매">
-    </form>
+            <form method="POST" action="{{ url_for('user_sell') }}">
+                <input type="number" name="sell_amount" placeholder="판매 희망 개수" min="1" max="{{ coin }}" required>
+                <input type="number" name="sell_price" placeholder="개당 판매 희망 금액" min="1" required>
+                <input type="submit" value="판매">
+            </form>
+        </div>
+        <div id="chart_div"></div>
+    </div>
+    
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     <script>
@@ -23,33 +58,88 @@
     </script>
     {% endif %}
     {% endwith %}
-    <h2>판매 게시판</h2>
     
-    <div>
-        {% for item in sell_list %}
-        <p>게시자: {{ item.username }}</p> 
-        <p>코인 판매 개수: {{ item.sell_amount }}개</p>
-        <p>개당 판매 가격: {{ item.sell_price }}원</p>
-        <p>총 가격: {{ item.sell_price * item.sell_amount }}원</p>
-
-        {% if username != item.username %}
-        <form method="POST" action="{{ url_for('user_purchase') }}">
-            <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
-            <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
-            <input type="hidden" name="seller_username" value="{{ item.username }}">
-            <button type="submit" class="btn btn-primary">구매</button>
-        </form>
-
-        {% else %}
-        <form method="POST" action="{{ url_for('user_sell_cancel') }}">
-            <input type="hidden" name="sell_amount" value="{{ item.sell_amount }}">
-            <input type="hidden" name="sell_price" value="{{ item.sell_price }}">
-            <input type="hidden" name="seller_username" value="{{ item.username }}">
-            <button type="submit" class="btn btn-primary">판매 취소</button>
-        </form>
-        {% endif %}
-        <hr>
-        {% endfor %}
+    <div id="sales_board">
+        <h2 style="text-align: center;">매매 게시판</h2>
+        <div class="container">
+            {% for item in sell_list %}
+            <div class="post">
+                <p>게시자: {{ item.username }}</p>
+                <p>코인 판매 개수: {{ item.sell_amount }}개</p>
+                <p>개당 판매 가격: {{ item.sell_price }}원</p>
+                <p>총 가격: {{ item.sell_price * item.sell_amount }}원</p>
+    
+                {% if username != item.username %}
+                <form method="POST" action="{{ url_for('user_purchase') }}">
+                    <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
+                    <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
+                    <input type="hidden" name="seller_username" value="{{ item.username }}">
+                    <button type="submit" class="btn btn-primary">구매</button>
+                </form>
+    
+                {% else %}
+                <form method="POST" action="{{ url_for('user_sell_cancel') }}">
+                    <input type="hidden" name="sell_amount" value="{{ item.sell_amount }}">
+                    <input type="hidden" name="sell_price" value="{{ item.sell_price }}">
+                    <input type="hidden" name="seller_username" value="{{ item.username }}">
+                    <button type="submit" class="btn btn-primary">판매 취소</button>
+                </form>
+                {% endif %}
+            </div>
+            {% if loop.index % 4 == 0 %}
+            <div style="clear: both;"></div>
+            {% endif %}
+            {% endfor %}
+        </div>
     </div>
+    
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var coinData = {{ coin_prices | safe }};
+            var data = new google.visualization.DataTable();
+
+            data.addColumn('string', '시간');
+            data.addColumn('number', '가격');
+
+            // 최근 12개 데이터만 가져오기
+            var startIndex = Math.max(0, coinData.length - 12);
+
+            for (var i = startIndex; i < coinData.length; i++) {
+                var row = coinData[i];
+                var timestamp = new Date(row[0]);
+
+                // 시간 문자열 생성
+                var timeString = timestamp.toLocaleString('en-US', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric'
+                });
+
+                var price = parseFloat(row[1]);
+
+                data.addRow([timeString, price]);
+            }
+
+            var options = {
+                title: '코인 가격',
+                curveType: 'none',
+                legend: { position: 'bottom' },
+                hAxis: {
+                    title: '시간',
+                }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+            chart.draw(data, options);
+        }
+    </script>
 </body>
 </html>
