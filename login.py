@@ -190,11 +190,10 @@ def board():
         username = user.get('username')
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
-
+        selling_coin = int(user.get('selling_coin', 0))
+        
         # Calculate the total number of coins being sold by the user
         sell_list = board_collection.find({'username': username})
-        selling_coin = sum(item['sell_amount'] for item in sell_list)
-
         sell_list = board_collection.find()  # 판매 게시글 모두 가져오기
 
         return render_template('board.html', username=username, balance=balance, coin=coin, selling_coin=selling_coin,
@@ -214,6 +213,7 @@ def user_sell():
             username = session['username']
             user = users_collection.find_one({'username': username})
             coin = user.get('coin', 0)
+            selling_coin = int(user.get('selling_coin', 0))
 
             if sell_amount.isdigit() and sell_price.isdigit():
                 sell_amount = int(sell_amount)
@@ -231,7 +231,9 @@ def user_sell():
                     })
 
                     updated_coin = coin - sell_amount
+                    updated_selling_coin = selling_coin + sell_amount
                     users_collection.update_one({'username': username}, {'$set': {'coin': updated_coin}})
+                    users_collection.update_one({'username': username}, {'$set': {'selling_coin': updated_selling_coin}})
                     flash("판매 게시글이 등록되었습니다.")
                     return redirect(url_for('board'))
             else:
