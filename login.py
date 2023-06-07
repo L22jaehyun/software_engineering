@@ -23,7 +23,6 @@ if market_collection.count_documents({}) == 0:
 @app.route('/', methods=['GET', 'POST'])  # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    coinprice = market_collection.find_one()['coinprice']
     coin_prices = coin_recent_price_collection.find({}, {'_id': 0, 'timestamp': 1, 'coin_price': 1}).sort('timestamp', 1)
     data = [['Timestamp', 'Price']]
     for price in coin_prices:
@@ -37,15 +36,15 @@ def login():
         if user:
             session['username'] = username
             flash("로그인에 성공했습니다!")
-            return render_template('login.html', coinprice=coinprice, coin_prices=data, login=True)
+            return render_template('login.html',  coin_prices=data, login=True)
         else:
             flash("존재하지 않는 회원입니다!")
-            return render_template('login.html', coinprice=coinprice, coin_prices=data, register=True)
+            return render_template('login.html',  coin_prices=data, register=True)
     else:
         if 'username' in session:
-            return render_template('login.html', coinprice=coinprice, coin_prices=data, login=True)
+            return render_template('login.html',  coin_prices=data, login=True)
         else:
-            return render_template('login.html', coinprice=coinprice, coin_prices=data, register=True)
+            return render_template('login.html',  coin_prices=data, register=True)
 
 
 @app.route('/register', methods=['GET', 'POST']) #회원가입
@@ -191,13 +190,16 @@ def board():
         balance = int(user.get('balance', 0))
         coin = int(user.get('coin', 0))
         selling_coin = int(user.get('selling_coin', 0))
-        
+        coin_prices = coin_recent_price_collection.find({}, {'_id': 0, 'timestamp': 1, 'coin_price': 1}).sort('timestamp', 1)
+        data = [['Timestamp', 'Price']]
+        for price in coin_prices:
+            data.append([price['timestamp'].isoformat(), price['coin_price']])
         # Calculate the total number of coins being sold by the user
         sell_list = board_collection.find({'username': username})
         sell_list = board_collection.find()  # 판매 게시글 모두 가져오기
 
         return render_template('board.html', username=username, balance=balance, coin=coin, selling_coin=selling_coin,
-                               sell_list=sell_list)
+                               sell_list=sell_list, coin_prices = data)
     else:
         return redirect(url_for('login'))
 
