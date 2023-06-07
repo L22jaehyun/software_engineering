@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <title>메인 페이지</title>
     <style>
-
+      
       /* 제목 스타일 */
       h1 {
+        font-family: Arial, Helvetica, sans-serif;
         text-align: center;
         margin-bottom: 50px;
       }
@@ -15,6 +16,22 @@
       /* 로그아웃 버튼 스타일 */
       .logout-form {
         text-align: center;
+        margin: 10px;
+        color:black;
+        text-decoration: none;
+      }
+      .logout-form-button
+      {
+        padding: 5px 10px;
+        border: none;
+        background-color: #c5e7c2;
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .logout-form-button:hover
+      {
+        background-color: #a1e39b;
       }
 
       /* 알림 메시지 스타일 */
@@ -23,6 +40,8 @@
         color: red;
         font-weight: bold;
       }
+      
+      
       
       /* 로그인 폼 스타일 */
       .login-form {
@@ -43,7 +62,7 @@
 
       .login-form input[type="text"],
       .login-form input[type="password"] {
-        width: 300px;
+        width: 290px;
         padding: 5px;
         border: 1px solid #ccc;
         border-radius: 3px;
@@ -58,28 +77,45 @@
         border: none;
         border-radius: 3px;
         cursor: pointer;
-        
+      }
+    
+      .menu{
+        display: flex; /* 요소들을 가로로 나란히 배치 */
+        align-items: center; /* 요소들을 수직 가운데 정렬 */
+        margin-left: 100px;
+        margin-right: 100px;
+        justify-content: center;
       }
 
-      /* 링크 스타일 */
       .login-links {
-        text-align: center;
-        margin-top: 10px;
+        list-style-type: none; 
+        margin: 0;
+        padding: 0;
+        display: flex;
       }
-
-      .login-links a {
-        margin: 0 10px;
-        color: blue;
-        text-decoration: underline;
+      
+      .login-links li {
+        margin-right: 10px; 
       }
+      
+      .login-links li a {
+        display: block; 
+        padding: 5px 10px; 
+        text-decoration: none; 
+        background-color: #c5e7c2; 
+        color: #333; 
+      }
+      
+      .login-links li a:hover {
+        background-color: #a5e5a0; 
+      }
+      
       .register {
         font-size: 12px;
         margin-top: 20px;
         text-align:center;
       }
-
-      .register a
-      {
+      .regiser a{
         text-decoration: none;
       }
 
@@ -139,11 +175,18 @@
     </script>
   </head>
   <body>
-    <h1>코인 마켓</h1>
+    <h1>Coin Market</h1>
     {% if login %}
-    <form class="logout-form" method="POST" action="{{ url_for('logout') }}">
-      <input type="submit" value="로그 아웃">
-    </form>
+    <p style="text-align:center; font-size: 23px;">어서오세요 {{ username }} 님!</p>
+    <div class="menu">
+      <form class="logout-form" method="POST" action="{{ url_for('logout') }}">
+        <input type="submit" value="로그 아웃" class="logout-form-button">
+      </form>
+      <ul class="login-links">
+        <li><a href="account">계정 관리</a></li>
+        <li><a href="board">매매 게시판</a></li>
+      </ul>
+    </div>
     {% endif %}
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -154,12 +197,6 @@
       </div>
       {% endif %}
     {% endwith %}
-    {% if login %}
-      <div class="login-links">
-        <a href="account">계정 관리</a>
-        <a href="board">매매 게시판</a>
-      </div>
-    {% endif %}
     {% if not login %}
     <form class="login-form" method="POST">
       <label for="username">사용자 이름:</label>

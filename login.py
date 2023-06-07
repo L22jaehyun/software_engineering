@@ -36,13 +36,14 @@ def login():
         if user:
             session['username'] = username
             flash("로그인에 성공했습니다!")
-            return render_template('login.html',  coin_prices=data, login=True)
+            return render_template('login.html', username =username, coin_prices=data, login=True)
         else:
             flash("존재하지 않는 회원입니다!")
             return render_template('login.html',  coin_prices=data, register=True)
     else:
         if 'username' in session:
-            return render_template('login.html',  coin_prices=data, login=True)
+            username = session['username']
+            return render_template('login.html',  username = username ,coin_prices=data, login=True)
         else:
             return render_template('login.html',  coin_prices=data, register=True)
 
