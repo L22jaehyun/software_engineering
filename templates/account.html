@@ -1,16 +1,117 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+      body{
+        margin: 0px;
+      }
+      .login-links {
+        list-style-type: none; 
+        margin-top: 34px;
+        padding: 0;
+        display: flex;
+        margin-left: 20px;
+      }
+      
+      .login-links li {
+        margin-right: 10px; 
+      }
+      
+      .login-links li a {
+        font-size: 17px;
+        display: block; 
+        padding: 5px 10px; 
+        text-decoration: none; 
+        background-color: #12d168; 
+        color: #333; 
+      }
+      
+      .login-links li a:hover {
+        background-color: #10b45a; 
+      }
+      .menubar {
+        width: 100%;
+        padding: 1px;
+        text-align: left;
+        margin-bottom: 50px;
+        background-color: #12d168;
+        text-decoration-line: none;
+        display: flex;
+      }
+      .menubar h1{
+        margin-left: 20px;
+      }
+      .logout-form-button
+      {
+        font-size: 17px;
+        margin-top: 34px;
+        padding: 5px;
+        border: none;
+        background-color: #12d168;
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+        text-decoration-line:none ;
+      }
+      .logout-form-button:hover
+      {
+        background-color:#10b45a;
+      }
+      .account
+      {
+        display: flex;
+      }
+      .account_info {
+        font-size: 17px;
+        width: 23%; 
+        margin: 10px;
+        margin-left: 50px;
+        padding: 10px;
+        padding-bottom: 30px; 
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        text-align: center;
+      }
+      .account_info2 {
+        font-size: 17px;
+        width: 23%; 
+        margin: 10px;
+        margin-left: 50px;
+        padding: 10px;
+        padding-bottom: 30px; 
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        text-align: center;
+      }
+      .account_info2 p{
+        font-size:30px;
+      }
+      #account_info_last
+      {
+        margin-right: 50px;
+      }
+      .coin_num{
+        font-size: 20px;
+      }
+    </style>
     <meta charset="UTF-8">
     <title>계정 관리</title>
-    <a href="login">메인 화면</a> <a href="board">매매 게시판</a>
+    <div class="menubar">
+    <h1>Coin Market</h1>
+    <ul class="login-links">
+      <li><a href="login">메인 화면</a></li>
+      <li><a href="board">매매 게시판</a></li>
+    </ul>
+    <form method="POST" action="{{ url_for('logout') }}">
+      <input type="submit" value="로그 아웃" class="logout-form-button">
+    </form>
+    </div>
   </head>
   <body>
-    <h1>계정 관리</h1>
-    
-    <form method="POST" action="{{ url_for('logout') }}">
-      <input type="submit" value="로그 아웃">
-    </form>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
       <script>
@@ -18,33 +119,35 @@
       </script>
       {% endif %}
     {% endwith %}
-    <h2>{{ username }} 님의 계좌 정보</h2>
-    <p>보유 금액: {{ balance }} 원</p>
-    <form method="POST" action="{{ url_for('deposit') }}">
-      <input type="text"  name="deposit_amount" placeholder="입금 희망 금액">
-      <input type="submit" value="입금">
-    </form>
-    <form method="POST" action="{{ url_for('withdraw') }}">
-      <input type="text"  name="withdraw_amount" placeholder="출금 희망 금액">
-      <input type="submit" value="출금">
-    </form>
-
-
-    <h2>{{username}} 님이 보유 중인 코인</h2>
-    <p>{{ coin }} 개</p>
-
-    <h2>{{username}} 님이 판매 중인 코인</h2>
-    <p>{{ selling_coin }} 개</p>
-
-    <h2>마켓이 보유 중인 코인</h2>
-    <p>{{ market_coin }} 개</p>
-    <form method="POST" action="{{ url_for('buy_market') }}">
-      <input type="text"  name="buy_market" placeholder="구매 희망 개수">
-      <input type="submit" value="구매">
-    </form>
-    <form method="POST" action="{{ url_for('delete_account') }}">
-      <input type="submit" value="회원 탈퇴">
-    </form>
-    
+    <div class="account">
+      <div class="account_info">
+        <h2>{{ username }} 님의 계좌 정보</h2>
+        <p>보유 금액: {{ balance }} 원</p>
+        <form method="POST" action="{{ url_for('deposit') }}">
+          <input type="text"  name="deposit_amount" placeholder="입금 희망 금액">
+          <input type="submit" value="입금">
+        </form>
+        <form method="POST" action="{{ url_for('withdraw') }}">
+          <input type="text"  name="withdraw_amount" placeholder="출금 희망 금액">
+          <input type="submit" value="출금">
+        </form> 
+      </div>
+        <div class="account_info2">
+          <h2>{{username}} 님이 보유 중인 코인</h2>
+          <p>{{ coin }} 개</p>
+        </div>
+        <div class="account_info2">
+          <h2>{{username}} 님이 판매 중인 코인</h2>
+          <p>{{ selling_coin }} 개</p>  
+        </div>
+      <div class="account_info" id="account_info_last">
+        <h2>마켓이 보유 중인 코인</h2>
+        <p>{{ market_coin }} 개</p>
+        <form method="POST" action="{{ url_for('buy_market') }}">
+        <input type="text"  name="buy_market" placeholder="구매 희망 개수">
+        <input type="submit" value="구매">
+        </form>
+      </div>
+    </div>   
   </body>
 </html>
