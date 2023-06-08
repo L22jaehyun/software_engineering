@@ -2,21 +2,26 @@
 <html>
   <head>
     <style>
-      h1 {
-        text-align: center;
-        margin-bottom: 50px;
+      body{
+        margin:0px;
       }
       .register-form {
         background-color: #eeeff1c8;
         width:300px;
-        padding:20px;
-        padding-bottom: 40px;
+        padding: 20px;
+        padding-top: 30px;
+        padding-bottom: 30px;
         border-radius: 5px;
         margin-left: auto;
         margin-right: auto;
         max-width: 300px;
       }
-
+      
+      .register-form h1{
+        text-align: center;
+        margin-top: 0px;
+        margin-bottom: 35px;
+      }
       .register-form label {
         display: block;
         margin-bottom: 10px;
@@ -24,10 +29,9 @@
 
       .register-form input[type="text"],
       .register-form input[type="password"] {
-        width: 300px;
+        width: 290px;
         padding: 5px;
         border: 1px solid #ccc;
-        border-radius: 3px;
       }
 
       .register-form input[type="submit"] {
@@ -37,13 +41,14 @@
         background-color: #12d168;
         color: rgb(240, 235, 235);
         border: none;
-        border-radius: 3px;
+        border-radius: 5px;
         cursor: pointer;
-        
+        border-radius: 5px;
       }
       .login {
         font-size: 13.5px;
         margin-top: 20px;
+        margin-bottom: 0px;
         text-align:center;
       }
 
@@ -51,12 +56,27 @@
       {
         text-decoration: none;
       }
+      .menubar {
+        width: 100%;
+        padding: 1px;
+        text-align: left;
+        margin-bottom: 50px;
+        background-color: #12d168;
+        text-decoration-line: none;
+        display: flex;
+      }
+      .menubar h1{
+        margin-left: 20px;
+      }
     </style>
     <meta charset="UTF-8">
     <title>회원 가입</title>
+    <div class="menubar">
+      <h1>Coin Market</h1>
+    </div>
   </head>
   <body>
-    <h1>회원 가입</h1>
+    
     {% with messages = get_flashed_messages() %}
       {% if messages %}
       <script>
@@ -65,14 +85,15 @@
       {% endif %}
     {% endwith %}
     <form class="register-form" method="POST" action="{{ url_for('register') }}">
+      <h1>회원 가입</h1>
       <label for="username">사용자 이름:</label>
       <input type="text" id="username" name="username" required><br>
-      <label for="password">비밀번호:</label>
+      <label style="margin-top:10px;"for="password">비밀 번호:</label>
       <input type="password" id="password" name="password" required><br>
       <input type="submit" value="가입">
+      <div class="login">
+        <a href="{{ url_for('login') }}">이미 회원이신가요?</a>
+        </div>
     </form>
-    <div class="login">
-    <a href="{{ url_for('login') }}">이미 회원이신가요?</a>
-    </div>
   </body>
 </html>

@@ -79,7 +79,7 @@
         margin-top: 10px;
         width: 200px;
         padding: 10px;
-        border: 1px solid black;
+        border: 0.3px solid black;
         border-radius: 5px;
       }
       .account_info {
@@ -112,7 +112,7 @@
         font-size:30px;
       }
       #account_info_last
-      {
+      { 
         margin-right: 50px;
       }
       .coin_num{
@@ -163,7 +163,7 @@
         </div>
       <div class="account_info" id="account_info_last">
         <h2>마켓이 보유 중인 코인</h2>
-        <p style="font-size:22px;">{{ market_coin }} 개</p>
+        <p style="font-size:22px;">{{ market_coin }} 개 / 개당 100원</p>
         <form method="POST" action="{{ url_for('buy_market') }}">
         <input type="text"  name="buy_market" placeholder="구매 희망 개수">
         <input type="submit" value="구매">
