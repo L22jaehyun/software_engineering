@@ -37,7 +37,7 @@
       .logout-form-button
           {
             font-size: 17px;
-            margin-top: 23px;
+            margin-top: 34px;
             padding: 5px;
             border: none;
             background-color: #12d168;
@@ -232,30 +232,22 @@ function drawChart() {
 
     </script>
     {% if login %}
-    
     <div class="menubar">
       <h1>Coin Market</h1>
-    </div>
-    {% if login %}
-    <p style="text-align:center; font-size: 23px;">어서오세요 {{ username }} 님!</p>
-    <div class="menu">
-      <form class="logout-form" method="POST" action="{{ url_for('logout') }}">
-        <input type="submit" value="로그 아웃" class="logout-form-button">
-      </form>
       <ul class="login-links">
-        <li><a href="account" >계정 관리</a></li>
-        <li><a href="board" >거래 게시판</a></li>
+          <li><a href="account">계정 관리</a></li>
+          <li><a href="board">매매 게시판</a></li>
       </ul>
-      <form class="logout-form" method="POST" action="{{ url_for('logout') }}">
-        <input type="submit" value="로그 아웃" class="logout-form-button">
-      </form>
-    </div>
+      <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃" class="logout-form-button"></form>
+  </div>
     {% endif %}
+    
     {% if not login %}
     <div class="menubar">
       <h1>Coin Market</h1>
     </div>
     {% endif %}
+    
   </head>
   <body>
     {% if login %}
