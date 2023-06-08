@@ -64,27 +64,64 @@
             flex-wrap: wrap;
             justify-content: flex-start;
         }
-        .post {
-            width: 23%; /* 4개의 게시물이 한 줄에 나타나도록 너비 조정 */
+
+        .post.same-user {
+            width: 23%; /* 한 줄에 4개의 포스트가 들어갈 수 있도록 너비 조정 */
             margin: 10px;
             padding: 10px;
             box-sizing: border-box;
-            border: 1px solid #ccc;
+            border: 1px solid #000000;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            background-color: rgb(227, 239, 217); /* 같은 사용자일 경우 포스트의 배경 색상을 초록색으로 설정 */
+        }
+        .post.different-user {
+            width: 23%; /* 한 줄에 4개의 포스트가 들어갈 수 있도록 너비 조정 */
+            margin: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            background-color: rgb(197, 246, 250); /* 다른 사용자일 경우 포스트의 배경 색상을 하늘색으로 설정 */
         }
         @media (max-width: 768px) {
             .post {
-                width: 48%; /* 2개의 게시물이 한 줄에 나타나도록 너비 조정 (모바일 화면) */
+                width: 48%; /* 모바일 화면에서 2개의 포스트가 한 줄에 보이도록 너비 조정 */
             }
         }
         @media (max-width: 480px) {
             .post {
-                width: 100%; /* 한 개의 게시물이 한 줄에 나타나도록 너비 조정 (작은 모바일 화면) */
+                width: 100%; /* 작은 모바일 화면에서 한 줄에 한 개의 포스트가 보이도록 너비 조정 */
             }
         }
-
+        #sales_board {
+            text-align: center;
+        }
+    
+        .sales-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 100%;
+        }
+    
+        .sales-table th, .sales-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        .sales-table th {
+            background-color: #f2f2f2;
+        }
+    
+        .sales-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    
+        .sales-table tr:hover {
+            background-color: #f5f5f5;
+        }
     </style>
+
 </head>
 <body>
     <div class="menubar">
@@ -101,10 +138,9 @@
             <p>보유 금액: {{ balance }} 원</p>
             <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
             <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
-
             <form method="POST" action="{{ url_for('user_sell') }}">
-                <input type="number" name="sell_amount" placeholder="판매 희망 개수" min="1" max="{{ coin }}" required>
-                <input type="number" name="sell_price" placeholder="개당 판매 희망 금액" min="1" required>
+                <input type="number" name="sell_amount" placeholder="판매 수량" min="1" max="{{ coin }}" required size="10">
+                <input type="number" name="sell_price" placeholder="개당 판매 금액" min="1" required size="10">
                 <input type="submit" value="판매">
             </form>
         </div>
@@ -118,39 +154,54 @@
     {% endif %}
     {% endwith %}
     
-    <div id="sales_board">
-        <h2 style="text-align: center;">매매 게시판</h2>
-        <div class="container">
-            {% for item in sell_list %}
-            <div class="post">
-                <p>게시자: {{ item.username }}</p>
-                <p>코인 판매 개수: {{ item.sell_amount }}개</p>
-                <p>개당 판매 가격: {{ item.sell_price }}원</p>
-                <p>총 가격: {{ item.sell_price * item.sell_amount }}원</p>
-
-                {% if username != item.username %}
-                <form method="POST" action="{{ url_for('user_purchase') }}">
-                    <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
-                    <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
-                    <input type="hidden" name="seller_username" value="{{ item.username }}">
-                    <button type="submit" class="btn btn-primary">구매</button>
-                </form>
-
-                {% else %}
-                <form method="POST" action="{{ url_for('user_sell_cancel') }}">
-                    <input type="hidden" name="sell_amount" value="{{ item.sell_amount }}">
-                    <input type="hidden" name="sell_price" value="{{ item.sell_price }}">
-                    <input type="hidden" name="seller_username" value="{{ item.username }}">
-                    <button type="submit" class="btn btn-primary">판매 취소</button>
-                </form>
-                {% endif %}
-            </div>
-            {% if loop.index % 4 == 0 %}
-            <div style="clear: both;"></div>
-            {% endif %}
-            {% endfor %}
-        </div>
+    <div id="sales_board" style="text-align: center;">
+        <h2>매매 게시판</h2>
+        <table class="sales-table" style="margin: 0 auto;">
+            <thead>
+                <tr>
+                    <th>판매자</th>
+                    <th>판매 코인 개수</th>
+                    <th>개당 코인 가격</th>
+                    <th>총 가격</th>
+                    <th>구매/판매취소</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sell_list %}
+                <tr>
+                    {% if username != item.username %}
+                    <td class="different-users">{{ item.username }}</td>
+                    <td>{{ item.sell_amount }}개</td>
+                    <td>{{ item.sell_price }}원</td>
+                    <td>{{ item.sell_price * item.sell_amount }}원</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('user_purchase') }}">
+                            <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
+                            <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
+                            <input type="hidden" name="seller_username" value="{{ item.username }}">
+                            <button type="submit" class="btn btn-primary">구매</button>
+                        </form>
+                    </td>
+                    {% else %}
+                    <td class="same-user">{{ item.username }}</td>
+                    <td>{{ item.sell_amount }}개</td>
+                    <td>{{ item.sell_price }}원</td>
+                    <td>{{ item.sell_price * item.sell_amount }}원</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('user_sell_cancel') }}">
+                            <input type="hidden" name="sell_amount" value="{{ item.sell_amount }}">
+                            <input type="hidden" name="sell_price" value="{{ item.sell_price }}">
+                            <input type="hidden" name="seller_username" value="{{ item.username }}">
+                            <button type="submit" class="btn btn-primary">판매 취소</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {'packages':['corechart']});

@@ -56,9 +56,7 @@
         text-align: center;
         color: red;
         font-weight: bold;
-      }
-      
-      
+      } 
       
       /* 로그인 폼 스타일 */
       .login-form {
@@ -98,8 +96,12 @@
         border-radius: 5px;
       }
     
-      body{
-        margin: 0px;
+      .menu{
+        display: flex; /* 요소들을 가로로 나란히 배치 */
+        align-items: center; /* 요소들을 수직 가운데 정렬 */
+        margin-left: 100px;
+        margin-right: 100px;
+        justify-content: center;
       }
       .login-links {
         list-style-type: none; 
@@ -158,61 +160,91 @@
         height: 400px;
         margin-top: 0px;
       }
+      .data-marker {
+        fill: red;
+        stroke: red;
+      }
     </style>
+    
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
 
-      function drawChart() {
-        var coinData = {{ coin_prices | safe }};
-        var data = new google.visualization.DataTable();
+function drawChart() {
+  var coinData = {{ coin_prices | safe }};
+  var data = new google.visualization.DataTable();
 
-        data.addColumn('string', 'Time');
-        data.addColumn('number', 'Price');
+  data.addColumn('string', 'Time');
+  data.addColumn('number', 'Price');
 
-        // 최근 12개 데이터만 가져오기
-        var startIndex = Math.max(0, coinData.length - 12);
+  // 최근 12개 데이터만 가져오기
+  var startIndex = Math.max(0, coinData.length - 12);
 
-        for (var i = startIndex; i < coinData.length; i++) {
-          var row = coinData[i];
-          var timestamp = new Date(row[0]);
+  for (var i = startIndex; i < coinData.length; i++) {
+    var row = coinData[i];
+    var timestamp = new Date(row[0]);
 
-          // 시간 문자열 생성
-          var timeString = timestamp.toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric'
-          });
+    // 현재 날짜와 코인 거래 날짜가 같으면 시간만 표시
+    var timeString;
+    var currentDate = new Date();
+    if (
+      timestamp.getDate() === currentDate.getDate() &&
+      timestamp.getMonth() === currentDate.getMonth() &&
+      timestamp.getFullYear() === currentDate.getFullYear()
+    ) {
+      timeString = timestamp.toLocaleString('en-US', {
+        hour12: false, // 24시간 형식으로 표시
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+      });
+    } else {
+      timeString = timestamp.toLocaleString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        hour12: false, // 24시간 형식으로 표시
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+      });
+    }
 
-          var price = parseFloat(row[1]);
+    var price = parseFloat(row[1]);
 
-          data.addRow([timeString, price]);
-        }
+    data.addRow([timeString, price]);
+  }
 
-        var options = {
-          title: '코인 가격',
-          curveType: 'none',
-          legend: { position: 'bottom' },
-          hAxis: {
-            title: '시간',
-          }
-        };
+  var options = {
+    title: '코인 가격',
+    curveType: 'none',
+    legend: { position: 'bottom' },
+    hAxis: {
+      title: '시간',
+    }
+  };
 
-        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+  var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
-        chart.draw(data, options);
-      }
+  chart.draw(data, options);
+}
+
+
     </script>
     {% if login %}
     
     <div class="menubar">
       <h1>Coin Market</h1>
+    </div>
+    {% if login %}
+    <p style="text-align:center; font-size: 23px;">어서오세요 {{ username }} 님!</p>
+    <div class="menu">
+      <form class="logout-form" method="POST" action="{{ url_for('logout') }}">
+        <input type="submit" value="로그 아웃" class="logout-form-button">
+      </form>
       <ul class="login-links">
-        <li><a href="account">계정 관리</a></li>
-        <li><a href="board">매매 게시판</a></li>
+        <li><a href="account" >계정 관리</a></li>
+        <li><a href="board" >거래 게시판</a></li>
       </ul>
       <form class="logout-form" method="POST" action="{{ url_for('logout') }}">
         <input type="submit" value="로그 아웃" class="logout-form-button">
