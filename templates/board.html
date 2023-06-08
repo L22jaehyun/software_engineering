@@ -91,13 +91,13 @@
         <h1>Coin Market</h1>
         <ul class="login-links">
             <li><a href="login">메인 화면</a></li>
-            <li><a href="account">내 계정</a></li>
+            <li><a href="account">계정 관리</a></li>
         </ul>
         <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃" class="logout-form-button"></form>
     </div>
     <div class="container">
         <div id="sales_form">
-            <h3>계정 정보</h3>
+            <h3>계좌 정보</h3>
             <p>보유 금액: {{ balance }} 원</p>
             <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
             <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
