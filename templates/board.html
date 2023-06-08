@@ -4,6 +4,61 @@
     <meta charset="UTF-8">
     <title>매매 게시판</title>
     <style>
+        body{
+            margin: 0px;
+          }
+          .login-links {
+            list-style-type: none; 
+            margin-top: 34px;
+            padding: 0;
+            display: flex;
+            margin-left: 20px;
+          }
+          
+          .login-links li {
+            margin-right: 10px; 
+          }
+          
+          .login-links li a {
+            font-size: 17px;
+            display: block; 
+            padding: 5px 10px; 
+            text-decoration: none; 
+            background-color: #12d168; 
+            color: #333; 
+          }
+          
+          .login-links li a:hover {
+            background-color: #10b45a; 
+          }
+          .menubar {
+            width: 100%;
+            padding: 1px;
+            text-align: left;
+            margin-bottom: 50px;
+            background-color: #12d168;
+            text-decoration-line: none;
+            display: flex;
+          }
+          .menubar h1{
+            margin-left: 20px;
+          }
+          .logout-form-button
+          {
+            font-size: 17px;
+            margin-top: 34px;
+            padding: 5px;
+            border: none;
+            background-color: #12d168;
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+            text-decoration-line:none ;
+          }
+          .logout-form-button:hover
+          {
+            background-color:#10b45a;
+          }
         .container {
             display: flex;
             flex-wrap: wrap;
@@ -32,11 +87,14 @@
     </style>
 </head>
 <body>
-    <div>
-    <a href="{{ url_for('login') }}">메인 화면</a> <a href="{{ url_for('account') }}">내 계정</a> 
+    <div class="menubar">
+        <h1>Coin Market</h1>
+        <ul class="login-links">
+            <li><a href="login">메인 화면</a></li>
+            <li><a href="account">내 계정</a></li>
+        </ul>
+        <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃" class="logout-form-button"></form>
     </div>
-    <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃"></form>
-
     <div class="container">
         <div id="sales_form">
             <h3>계정 정보</h3>
