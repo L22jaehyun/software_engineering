@@ -5,14 +5,28 @@
     <meta charset="UTF-8">
     <title>메인 페이지</title>
     <style>
-      
-      /* 제목 스타일 */
-      h1 {
-        font-family: Arial, Helvetica, sans-serif;
-        text-align: center;
-        margin-bottom: 50px;
+      body {
+        margin:0px;
       }
-
+      .menubar {
+        width: 100%;
+        padding: 1px;
+        text-align: left;
+        margin-bottom: 50px;
+        background-color: #12d168;
+        text-decoration-line: underline;
+      }
+      .menubar h1{
+        margin-left: 20px;
+      }
+      .menubar::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        border-bottom: 1px solid black; /* 줄의 스타일 및 색상 */
+      }
       /* 로그아웃 버튼 스타일 */
       .logout-form {
         text-align: center;
@@ -24,14 +38,14 @@
       {
         padding: 5px 10px;
         border: none;
-        background-color: #c5e7c2;
+        background-color: #12d168;
         color: #333;
         text-decoration: none;
         cursor: pointer;
       }
       .logout-form-button:hover
       {
-        background-color: #a1e39b;
+        background-color:#12d168;
       }
 
       /* 알림 메시지 스타일 */
@@ -48,6 +62,7 @@
         background-color: #eeeff1c8;
         width:300px;
         padding:20px;
+        padding-bottom: 30px;
         border-radius: 5px;
         margin-left: auto;
         margin-right: auto;
@@ -72,7 +87,7 @@
         margin-top: 20px;
         width: 300px;
         padding: 10px;
-        background-color: #4CAF50;
+        background-color: #12d168;
         color: rgb(240, 235, 235);
         border: none;
         border-radius: 3px;
@@ -86,6 +101,7 @@
         margin-right: 100px;
         justify-content: center;
       }
+
 
       .login-links {
         list-style-type: none; 
@@ -102,12 +118,12 @@
         display: block; 
         padding: 5px 10px; 
         text-decoration: none; 
-        background-color: #c5e7c2; 
+        background-color: #12d168; 
         color: #333; 
       }
       
       .login-links li a:hover {
-        background-color: #a5e5a0; 
+        background-color: #10b45a; 
       }
       
       .register {
@@ -175,7 +191,9 @@
     </script>
   </head>
   <body>
-    <h1>Coin Market</h1>
+    <div class="menubar">
+      <h1>Coin Market</h1>
+    </div>
     {% if login %}
     <p style="text-align:center; font-size: 23px;">어서오세요 {{ username }} 님!</p>
     <div class="menu">
