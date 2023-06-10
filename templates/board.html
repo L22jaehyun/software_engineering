@@ -59,10 +59,44 @@
           {
             background-color:#10b45a;
           }
+          .board_info
+          {
+            display:flex;
+          }
         .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
+            font-size: 17px;
+            width: 23%; 
+            margin: 10px;
+            margin-left: 50px;
+            padding: 10px;
+            padding-bottom: 30px; 
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .container input[type="submit"]
+        {
+            margin-top: 10px;
+            width: 110px;
+            padding: 10px;
+            background-color: #12d168;
+            color: rgb(240, 235, 235);
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn_btn-primary
+        {
+            margin-top: 10px;
+            width: 110px;
+            padding: 10px;
+            background-color: #12d168;
+            color: rgb(240, 235, 235);
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
         }
 
         .post.same-user {
@@ -96,7 +130,6 @@
         #sales_board {
             text-align: center;
         }
-    
         .sales-table {
             margin: 0 auto;
             border-collapse: collapse;
@@ -132,17 +165,19 @@
         </ul>
         <form method="POST" action="{{ url_for('logout') }}"><input type="submit" value="로그 아웃" class="logout-form-button"></form>
     </div>
-    <div class="container">
-        <div id="sales_form">
-            <h3>계좌 정보</h3>
-            <p>보유 금액: {{ balance }} 원</p>
-            <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
-            <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
-            <form method="POST" action="{{ url_for('user_sell') }}">
-                <input type="number" name="sell_amount" placeholder="판매 수량" min="1" max="{{ coin }}" required size="10">
-                <input type="number" name="sell_price" placeholder="개당 판매 금액" min="1" required size="10">
-                <input type="submit" value="판매">
-            </form>
+    <div class ="board_info">
+        <div class="container">
+            <div id="sales_form">
+                <h3>계좌 정보</h3>
+                <p>보유 금액: {{ balance }} 원</p>
+                <p>보유하고 있는 코인 개수: {{ coin }} 개</p>
+                <p>판매하고 있는 코인 개수: {{ selling_coin|default(0) }} 개</p>
+                <form method="POST" action="{{ url_for('user_sell') }}">
+                    <input type="number" name="sell_amount" placeholder="판매 수량" min="1" max="{{ coin }}" required size="10">
+                    <input type="number" name="sell_price" placeholder="개당 판매 금액" min="1" required size="10">
+                    <input type="submit" value="판매">
+                </form>
+            </div>
         </div>
         <div id="chart_div"></div>
     </div>
@@ -179,7 +214,7 @@
                             <input type="hidden" name="purchase_amount" value="{{ item.sell_amount }}">
                             <input type="hidden" name="purchase_price" value="{{ item.sell_price }}">
                             <input type="hidden" name="seller_username" value="{{ item.username }}">
-                            <button type="submit" class="btn btn-primary">구매</button>
+                            <button type="submit" class="btn_btn-primary">구매</button>
                         </form>
                     </td>
                     {% else %}
@@ -192,7 +227,7 @@
                             <input type="hidden" name="sell_amount" value="{{ item.sell_amount }}">
                             <input type="hidden" name="sell_price" value="{{ item.sell_price }}">
                             <input type="hidden" name="seller_username" value="{{ item.username }}">
-                            <button type="submit" class="btn btn-primary">판매 취소</button>
+                            <button type="submit" class="btn_btn-primary">판매 취소</button>
                         </form>
                     </td>
                     {% endif %}
