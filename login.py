@@ -290,17 +290,18 @@ def user_purchase():
 
         seller = users_collection.find_one({'username': seller_username})
         seller_coin = seller.get('coin', 0)
+        seller_sellingcoin = seller.get('selling_coin',0)
         seller_balance = seller.get('balance', 0)
 
         updated_balance = balance - purchase_amount * purchase_price
         updated_coin = coin + purchase_amount
         updated_seller_balance = seller_balance + purchase_amount * purchase_price
-        updated_seller_coin = seller_coin - purchase_amount
+        updated_seller_sellingcoin = seller_sellingcoin - purchase_amount
 
         users_collection.update_one({'username': session['username']}, {'$set': {'balance': updated_balance}})
         users_collection.update_one({'username': session['username']}, {'$set': {'coin': updated_coin}})
         users_collection.update_one({'username': seller_username}, {'$set': {'balance': updated_seller_balance}})
-        users_collection.update_one({'username': seller_username}, {'$set': {'coin': updated_seller_coin}})
+        users_collection.update_one({'username': seller_username}, {'$set': {'selling_coin': updated_seller_sellingcoin}})
 
         
 
